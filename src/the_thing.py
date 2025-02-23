@@ -43,20 +43,19 @@ def flatten_folder(source_folder, destination_folder):
     source_folder (str): Path to the folder to be flattened
     destination_folder (str): Path to the folder where files will be moved
     """
-    if not os.path.exists(destination_folder):
-        os.makedirs(destination_folder)
+    os.makedirs(destination_folder, exist_ok = True)
+
+    existing_files = filenames_in_folder(destination_folder, None)
 
     for root, dirs, files in os.walk(source_folder):
         for file in files:
+            if Path(file).stem in existing_files:
+                print(f"Skipping, already copied before: {file}")
+                continue
             source_path = os.path.join(root, file)
             base, extension = os.path.splitext(file)
             counter = 1
             destination_path = os.path.join(destination_folder, file)
-
-            while os.path.exists(destination_path):
-                new_name = f"{base}_{counter}{extension}"
-                destination_path = os.path.join(destination_folder, new_name)
-                counter += 1
             shutil.copy(source_path, destination_path)
 
 
